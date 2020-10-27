@@ -129,14 +129,20 @@ class SocialShare {
     return response;
   }
 
-  static Future<String> shareTwitter(String captionText,
-      {List<String> hashtags, String url, String trailingText}) async {
+  static Future<String> shareTwitter(
+    String captionText, {
+    List<String> hashtags,
+    String url,
+    String trailingText,
+  }) async {
     Map<String, dynamic> args;
     String modifiedUrl;
-    if (Platform.isAndroid) {
-      modifiedUrl = Uri.parse(url).toString().replaceAll('#', "%23");
-    } else {
-      modifiedUrl = Uri.parse(url).toString();
+    if (url != null && url.isNotEmpty) {
+      if (Platform.isAndroid) {
+        modifiedUrl = Uri.parse(url).toString().replaceAll('#', "%23");
+      } else {
+        modifiedUrl = Uri.parse(url).toString();
+      }
     }
     if (hashtags != null && hashtags.isNotEmpty) {
       String tags = "";
@@ -144,19 +150,21 @@ class SocialShare {
         tags += ("%23" + f.toString() + " ").toString();
       });
       args = <String, dynamic>{
-        "captionText":
-            Uri.parse(captionText + "\n" + tags.toString()).toString(),
-        "url": modifiedUrl,
-        "trailingText": Uri.parse(trailingText).toString()
+        if (captionText != null && captionText.isNotEmpty)
+          "captionText": Uri.parse(captionText + "\n" + tags.toString()).toString(),
+        if (modifiedUrl != null && modifiedUrl.isNotEmpty) "url": modifiedUrl,
+        if (trailingText != null && trailingText.isNotEmpty)
+          "trailingText": Uri.parse(trailingText).toString()
       };
     } else {
       args = <String, dynamic>{
-        "captionText": Uri.parse(captionText + " ").toString(),
-        "url": modifiedUrl,
-        "trailingText": Uri.parse(trailingText).toString()
+        if (captionText != null && captionText.isNotEmpty)
+          "captionText": Uri.parse(captionText + " ").toString(),
+        if (modifiedUrl != null && modifiedUrl.isNotEmpty) "url": modifiedUrl,
+        if (trailingText != null && trailingText.isNotEmpty)
+          "trailingText": Uri.parse(trailingText).toString()
       };
     }
-    print('hello');
     final String version = await _channel.invokeMethod('shareTwitter', args);
     return version;
   }
